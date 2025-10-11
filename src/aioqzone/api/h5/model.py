@@ -356,3 +356,19 @@ class QzoneH5API:
                 params=AvatarParams.model_validate(locals()),
             ),
         )
+
+    async def get_visitor(self, page: int = 1) -> VisitorResp:
+        """获取今日 / 总访客数
+        :param page: 获取的页数
+        """
+        return await self.call(VisitorApi(params=VisitorParams.model_validate(locals())))
+
+    async def get_message(self, hostUin: int, num: int = 10, start: int = 0) -> MessageBoardResp:
+        """获取留言板留言
+
+        :param uin: 当前用户QQ号
+        :param hostUin: 空间主人QQ号
+        :param num: 获取留言数量
+        :param start: 起始位置
+        """
+        return await self.call(MessageBoardApi(params=MessageBoardParams.model_validate(locals())))

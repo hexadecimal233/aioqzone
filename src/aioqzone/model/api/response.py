@@ -13,6 +13,7 @@ from pydantic import (
     TypeAdapter,
     create_model,
     model_validator,
+    field_validator,
 )
 from tenacity import TryAgain
 from typing_extensions import Self
@@ -348,3 +349,114 @@ class AvatarResponse(QzoneResponse):
     @classmethod
     async def response_to_object(cls, response: ClientResponse) -> "StrDict":
         return {"avatar": await response.content.read()}
+
+
+class VisitorUser(BaseModel):
+    uin: int
+    src: int
+    platform_src: int
+    service_src: int
+    time: int
+    hide_from: int
+    is_hide_visit: int
+    name: str
+    yellow: int = -1
+    supervip: int = 0
+
+
+class ShuoshuoSnapshot(BaseModel):
+    id: str
+    src: int
+    platform_src: int
+    service_src: int
+    vtime: int
+    url: t.Union[HttpUrl, str]
+    imgsrc: t.Union[HttpUrl, str]
+    name: str
+
+    # 如果没图片就这么搞
+    @field_validator("url", "imgsrc", mode="before")
+    @classmethod
+    def empty_str_(cls, v: str):
+        return v if v != "" else ""
+
+
+class VisitorItem(BaseModel):
+    uin: int
+    src: int
+    platform_src: int
+    service_src: int
+    time: int
+    hide_from: int
+    is_hide_visit: int
+    name: str
+    yellow: int = -1
+    supervip: int = 0
+    uins: t.List[VisitorUser] = []
+    shuoshuoes: t.List[ShuoshuoSnapshot] = []
+
+
+class VisitorResp(QzoneResponse):
+    Ishost: int = 0
+    page: int = 1
+    totalpage: int = 1
+    todaycount: int = 0
+    totalcount: int = 0
+    noright_todaycount: int = 0
+    noright_totalcount: int = 0
+    items: t.List[VisitorItem] = []
+
+    @classmethod
+    async def response_to_object(cls, response: ClientResponse) -> StrDict:
+        m = response_callback.search(await response.text())
+        assert m
+        return validate_strdict(json_loads(m.group(1)))
+
+
+class ReplyItem(BaseModel):
+    content: str
+    uin: int
+    time: int
+    nick: str
+
+
+class CommentListItem(BaseModel):
+    id: str
+    secret: int
+    pasterid: str
+    bmp: str
+    pubtime: str
+    modifytime: int
+    effect: int
+    type: int
+
+    # if secret != 1 (非私密留言)
+    uin: t.Optional[int] = None
+    nickname: t.Optional[str] = None
+    capacity: t.Optional[int] = None
+    htmlContent: t.Optional[str] = None
+    ubbContent: t.Optional[str] = None
+    signature: t.Optional[str] = None
+    replyList: t.Optional[t.List[ReplyItem]] = Field(default_factory=list)
+
+
+class AuthorInfo(BaseModel):
+    msg: str
+    htmlMsg: str
+    sign: str
+
+
+class MessageBoardResp(QzoneResponse):
+    # 只有自己的留言板才有
+    auditNum: t.Optional[int] = None
+    auditON: t.Optional[int] = None
+
+    total: int
+    authorInfo: AuthorInfo = Field(default_factory=AuthorInfo)
+    commentList: t.List[CommentListItem] = Field(default_factory=list)
+
+    @classmethod
+    async def response_to_object(cls, response: ClientResponse) -> StrDict:
+        m = response_callback.search(await response.text())
+        assert m
+        return validate_strdict(json_loads(m.group(1)))

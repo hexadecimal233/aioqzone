@@ -292,3 +292,18 @@ class PhotosPreuploadParams(QzoneRequestParams):
 class AvatarParams(QzoneRequestParams):
     hostuin: int
     size: t.Literal[100, 640] = 100
+
+
+class VisitorParams(QzoneRequestParams):
+    uin_fields = ("uin",)
+    mask: int = 7
+    page: int = 1
+    fupdate: int = 1
+    clear: int = 1
+
+
+class MessageBoardParams(QzoneRequestParams):
+    uin_fields = ("uin",)
+    hostUin: int
+    num: int = 10
+    start: int = 0
