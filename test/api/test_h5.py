@@ -38,11 +38,14 @@ async def api(client: ClientAdapter, man: Loginable, CI: bool):
 async def flow_wo_check(api: QzoneH5API):
     feed_flow = await api.index()
     assert api.qzone_tokens[api.login.uin]
+    visitor = await api.get_visitor()
 
     hostuin = feed_flow.vFeeds[0].userinfo.uin
     profile_flow = await api.profile(hostuin)
     flow2 = await api.get_feeds(hostuin, profile_flow.feedpage.attachinfo)
     assert api.qzone_tokens[hostuin]
+
+    board = await api.get_message(hostuin)
 
 
 async def upload_photos(api: QzoneH5API):
