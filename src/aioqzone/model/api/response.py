@@ -12,8 +12,8 @@ from pydantic import (
     HttpUrl,
     TypeAdapter,
     create_model,
-    model_validator,
     field_validator,
+    model_validator,
 )
 from tenacity import TryAgain
 from typing_extensions import Self
@@ -49,6 +49,8 @@ __all__ = [
     "PicInfo",
     "ProfileFeedData",
     "AvatarResponse",
+    "MessageBoardResp",
+    "VisitorResp",
 ]
 
 validate_strdict = TypeAdapter(StrDict).validate_python

@@ -31,6 +31,8 @@ __all__ = [
     "PhotosPreuploadParams",
     "UgcRight",
     "PhotoData",
+    "MessageBoardParams",
+    "VisitorParams",
 ]
 
 
